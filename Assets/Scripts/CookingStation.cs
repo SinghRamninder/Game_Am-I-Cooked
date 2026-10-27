@@ -1,0 +1,54 @@
+using System.Collections;
+using UnityEngine;
+
+public class CookingStation : MonoBehaviour
+{
+    [SerializeField] private float cookingTime = 5f;
+    [SerializeField] private float foodBurningTime = 10f;
+
+    private bool isCooking = false;
+
+    public bool StartCookingFood(FoodManager food)
+    {
+        if (isCooking)
+        {
+            Debug.Log("Cooking station is already in use.");
+            return false;
+        }
+
+        if (food.isBurnt)
+        {
+            Debug.Log("Food is already burnt.");
+            return false;
+        }
+        else if (food.isCooked)
+        {
+            Debug.Log("Food is already cooked.");
+            return false;
+        }
+
+        if (food.foodType == FoodType.Raw)
+        {
+            isCooking = true;
+            StartCoroutine(CookFood(food));
+            return true;
+        }
+        else
+        {
+            Debug.Log("Food is not raw and cannot be cooked.");
+            return false;
+        }
+    }
+
+    private IEnumerator CookFood (FoodManager food)
+    {
+        Debug.Log("Cooking started.");
+        yield return new WaitForSeconds(cookingTime);
+        food.isCooked = true;
+        Debug.Log("Food is cooked.");
+        yield return new WaitForSeconds(foodBurningTime);
+        food.isBurnt = true;
+        Debug.Log("Food is burnt.");
+        isCooking = false;
+    }
+}
