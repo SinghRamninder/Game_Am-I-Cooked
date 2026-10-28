@@ -9,7 +9,6 @@ public class FoodSpawner : MonoBehaviour
     [SerializeField] private bool spawnRawFood = true;
 
     private GameObject[] storedFood;
-    private FoodManager food;
     private float nextSpawnTime = 4f;
     private int currentFoodIndex = 0;
     private bool isContainerEmpty = false;
@@ -40,10 +39,9 @@ public class FoodSpawner : MonoBehaviour
         }
 
         storedFood[currentFoodIndex].SetActive(true);
-        food = storedFood[currentFoodIndex].GetComponent<FoodManager>();
     }
 
-    public FoodManager GetFood()
+    public GameObject GetFood()
     {
         if (isContainerEmpty)
         {
@@ -61,14 +59,12 @@ public class FoodSpawner : MonoBehaviour
             isContainerLoading = true;
             StartCoroutine(nextFoodSpawn());
 
-            return food;
+            return storedFood[currentFoodIndex];
         }
     }
 
     private IEnumerator nextFoodSpawn()
     {
-        storedFood[currentFoodIndex].SetActive(false);
-
         currentFoodIndex++;
         if (currentFoodIndex >= storedFood.Length)
         {
@@ -80,7 +76,6 @@ public class FoodSpawner : MonoBehaviour
             yield return new WaitForSeconds(nextSpawnTime);
 
             storedFood[currentFoodIndex].SetActive(true);
-            food = storedFood[currentFoodIndex].GetComponent<FoodManager>();
             isContainerLoading = false;
         }
     }
