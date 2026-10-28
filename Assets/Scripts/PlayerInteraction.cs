@@ -1,9 +1,9 @@
-using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
+    private InputSystem_Actions controls;
     private GameObject foodInHand;
     private FoodManager foodManager;
     private GameObject nearbyFood;
@@ -12,9 +12,14 @@ public class PlayerInteraction : MonoBehaviour
     private bool nearCookingStation = false;
     private CookingStation cookingStation;
 
+    private void Awake()
+    {
+        controls = new InputSystem_Actions();
+    }
+
     private void Update()
     {
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (controls.Player.Interact.WasPressedThisFrame())
         {
             if (canPickUpFood)
             {
@@ -47,7 +52,11 @@ public class PlayerInteraction : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("No food in hand to cook.");
+                    foodInHand = cookingStation.TryTakingFood();
+                    if (foodInHand != null)
+                    {
+                        PickupFood();
+                    }
                 }
             }
         }
@@ -98,6 +107,20 @@ public class PlayerInteraction : MonoBehaviour
         foodManager = null;
     }
 
+    public FoodManager GetFoodInHand()
+    {
+        return foodManager;
+    }
+
+    public void RemoveFoodFromHand()
+    {
+        if (foodInHand == null) return;
+
+        Destroy(foodInHand);
+        foodInHand = null;
+        foodManager = null;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Food") && foodInHand == null && !canPickUpFood)
@@ -140,5 +163,15 @@ public class PlayerInteraction : MonoBehaviour
             cookingStation = null;
             nearCookingStation = false;
         }
+    }
+
+    void OnEnable()
+    {
+        controls.Player.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Player.Disable();
     }
 }
