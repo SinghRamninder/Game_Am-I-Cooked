@@ -7,9 +7,9 @@ public class FoodSpawner : MonoBehaviour
     [SerializeField] private GameObject[] snackPrefab;
     [SerializeField] private int totalAvailableFood = 50;
     [SerializeField] private bool spawnRawFood = true;
+    [SerializeField] private float nextSpawnTime = 5f;
 
     private GameObject[] storedFood;
-    private float nextSpawnTime = 4f;
     private int currentFoodIndex = 0;
     private bool isContainerEmpty = false;
     private bool isContainerLoading = false;
@@ -57,9 +57,10 @@ public class FoodSpawner : MonoBehaviour
         else
         {
             isContainerLoading = true;
+            GameObject foodToReturn = storedFood[currentFoodIndex];
             StartCoroutine(nextFoodSpawn());
 
-            return storedFood[currentFoodIndex];
+            return foodToReturn;
         }
     }
 

@@ -8,7 +8,7 @@ public class CookingStation : MonoBehaviour
 
     private bool isCooking = false;
 
-    public bool StartCookingFood(FoodManager food)
+    public bool TryCookingFood(FoodManager food)
     {
         if (isCooking)
         {
@@ -30,7 +30,11 @@ public class CookingStation : MonoBehaviour
         if (food.foodType == FoodType.Raw)
         {
             isCooking = true;
+            food.GetComponent<Transform>().SetParent(transform);
+            food.GetComponent<Transform>().localPosition = Vector3.zero;
+            food.GetComponent<Transform>().localRotation = Quaternion.identity;
             StartCoroutine(CookFood(food));
+
             return true;
         }
         else

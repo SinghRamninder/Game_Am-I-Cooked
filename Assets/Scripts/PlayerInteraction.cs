@@ -9,26 +9,46 @@ public class PlayerInteraction : MonoBehaviour
     private GameObject nearbyFood;
     private FoodSpawner foodSpawner;
     private bool canPickUpFood = false;
+    private bool nearCookingStation = false;
+    private CookingStation cookingStation;
 
     private void Update()
     {
-        if (canPickUpFood && Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.eKey.wasPressedThisFrame)
         {
-            if (foodSpawner != null)
+            if (canPickUpFood)
             {
-                foodInHand = foodSpawner.GetFood();
-                if (foodInHand != null)
+                if (foodSpawner != null)
                 {
+                    foodInHand = foodSpawner.GetFood();
+                    if (foodInHand != null)
+                    {
+                        PickupFood();
+                    }
+                    foodSpawner = null;
+                    canPickUpFood = false;
+                }
+                else if (nearbyFood != null)
+                {
+                    foodInHand = nearbyFood;
+                    nearbyFood = null;
                     PickupFood();
                 }
-                foodSpawner = null;
-                canPickUpFood = false;
             }
-            else if (nearbyFood != null)
+            else if (nearCookingStation && cookingStation != null)
             {
-                foodInHand = nearbyFood;
-                nearbyFood = null;
-                PickupFood();
+                if (foodManager != null)
+                {
+                    if (cookingStation.TryCookingFood(foodManager))
+                    {
+                        foodInHand = null;
+                        foodManager = null;
+                    }
+                }
+                else
+                {
+                    Debug.Log("No food in hand to cook.");
+                }
             }
         }
     }
@@ -90,6 +110,13 @@ public class PlayerInteraction : MonoBehaviour
         {
             foodSpawner = other.gameObject.GetComponent<FoodSpawner>();
             canPickUpFood = true;
+            Debug.Log("FoodSpawner detected");
+        }
+
+        if (other.CompareTag("CookingStation"))
+        {
+            cookingStation = other.gameObject.GetComponent<CookingStation>();
+            nearCookingStation = true;
         }
     }
 
@@ -105,6 +132,13 @@ public class PlayerInteraction : MonoBehaviour
         {
             foodSpawner = null;
             canPickUpFood = false;
+            Debug.Log("FoodSpawner left");
+        }
+
+        if (other.CompareTag("CookingStation"))
+        {
+            cookingStation = null;
+            nearCookingStation = false;
         }
     }
 }
