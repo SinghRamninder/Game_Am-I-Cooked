@@ -1177,6 +1177,7 @@ GameObject:
   - component: {fileID: 8067142462588067662}
   - component: {fileID: 1693793435646588535}
   - component: {fileID: 1791022458697642837}
+  - component: {fileID: 2888223545224390546}
   m_Layer: 0
   m_Name: SnackContainer
   m_TagString: FoodSpawner
@@ -1243,6 +1244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93ecc23aea29bd8469b37f6c6307d514, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodSpawner
+  ShowTopMostFoldoutHeaderGroup: 1
   rawFoodPrefab:
   - {fileID: 5257383005662587772, guid: 9c0b4fab6bb2bd84da8fc16363704fff, type: 3}
   snackPrefab:
@@ -1251,6 +1253,33 @@ MonoBehaviour:
   spawnRawFood: 0
   nextSpawnTime: 5
   lowStockPercentage: 0.8
+--- !u!114 &2888223545224390546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6776020343945092622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &7650280986919982706
 GameObject:
   m_ObjectHideFlags: 0

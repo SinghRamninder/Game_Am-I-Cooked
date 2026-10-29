@@ -1,7 +1,15 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class FoodSpawner : MonoBehaviour
+public enum StockState
+{
+    InStock,
+    LowStock,
+    OutOfStock
+}
+
+public class FoodSpawner : NetworkBehaviour
 {
     [SerializeField] private GameObject[] rawFoodPrefab;
     [SerializeField] private GameObject[] snackPrefab;
@@ -10,42 +18,56 @@ public class FoodSpawner : MonoBehaviour
     [SerializeField] private float nextSpawnTime = 5f;
     [SerializeField] private float lowStockPercentage = 0.8f;
 
-    private GameObject[] storedFood;
+    private FoodManager foodInContainer;
     private int currentFoodIndex = 0;
     private bool isContainerEmpty = false;
     private bool isContainerLoading = false;
-    private bool isLowStockShown = false;
     private FoodContainerUI containerUI;
+    private NetworkVariable<StockState> stockState = new NetworkVariable<StockState>(StockState.InStock);
 
-    private void Start()
+    private void Awake()
     {
         containerUI = GetComponentInChildren<FoodContainerUI>();
-        storedFood = new GameObject[totalAvailableFood];
+    }
 
+    public override void OnNetworkSpawn()
+    {
+        stockState.OnValueChanged += OnStockStateChanged;
+        ShowStockState(stockState.Value);
+    }
+
+    public void StartSpawning()
+    {
+        if (!IsServer || foodInContainer != null || isContainerEmpty) return;
+
+        SpawnNextFood();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        stockState.OnValueChanged -= OnStockStateChanged;
+    }
+
+    private void SpawnNextFood()
+    {
+        GameObject foodPrefab;
         if (spawnRawFood)
         {
-            for (int i = 0; i < totalAvailableFood; i++)
-            {
-                int randomIndex = Random.Range(0, rawFoodPrefab.Length);
-                storedFood[i] = Instantiate(rawFoodPrefab[randomIndex], transform.position, Quaternion.identity);
-                storedFood[i].SetActive(false);
-            }
-
+            foodPrefab = rawFoodPrefab[Random.Range(0, rawFoodPrefab.Length)];
         }
         else
         {
-            for (int i = 0; i < totalAvailableFood; i++)
-            {
-                int randomIndex = Random.Range(0, snackPrefab.Length);
-                storedFood[i] = Instantiate(snackPrefab[randomIndex], transform.position, Quaternion.identity);
-                storedFood[i].SetActive(false);
-            }
+            foodPrefab = snackPrefab[Random.Range(0, snackPrefab.Length)];
         }
 
-        storedFood[currentFoodIndex].SetActive(true);
+        GameObject food = Instantiate(foodPrefab, transform.position, Quaternion.identity);
+        food.GetComponent<NetworkObject>().Spawn(true);
+
+        foodInContainer = food.GetComponent<FoodManager>();
+        foodInContainer.SetHolder(NetworkObject);
     }
 
-    public GameObject GetFood()
+    public FoodManager GetFood()
     {
         if (isContainerEmpty)
         {
@@ -53,7 +75,7 @@ public class FoodSpawner : MonoBehaviour
             return null;
         }
 
-        if (isContainerLoading)
+        if (isContainerLoading || foodInContainer == null)
         {
             Debug.Log("Container is loading...");
             return null;
@@ -61,34 +83,56 @@ public class FoodSpawner : MonoBehaviour
         else
         {
             isContainerLoading = true;
-            GameObject foodToReturn = storedFood[currentFoodIndex];
+            FoodManager foodToReturn = foodInContainer;
+            foodInContainer = null;
             StartCoroutine(nextFoodSpawn());
 
             return foodToReturn;
         }
     }
 
+    public bool IsContainerEmpty()
+    {
+        return isContainerEmpty;
+    }
+
     private IEnumerator nextFoodSpawn()
     {
         currentFoodIndex++;
-        if (currentFoodIndex >= storedFood.Length)
+        if (currentFoodIndex >= totalAvailableFood)
         {
             isContainerEmpty = true;
-            containerUI.ShowOutOfStock();
+            stockState.Value = StockState.OutOfStock;
             yield return null;
         }
         else
         {
-            if (!isLowStockShown && currentFoodIndex >= Mathf.RoundToInt(storedFood.Length * lowStockPercentage))
+            if (stockState.Value == StockState.InStock && currentFoodIndex >= Mathf.RoundToInt(totalAvailableFood * lowStockPercentage))
             {
-                isLowStockShown = true;
-                containerUI.ShowLowStock();
+                stockState.Value = StockState.LowStock;
             }
 
             yield return new WaitForSeconds(nextSpawnTime);
 
-            storedFood[currentFoodIndex].SetActive(true);
+            SpawnNextFood();
             isContainerLoading = false;
+        }
+    }
+
+    private void OnStockStateChanged(StockState oldState, StockState newState)
+    {
+        ShowStockState(newState);
+    }
+
+    private void ShowStockState(StockState state)
+    {
+        if (state == StockState.LowStock)
+        {
+            containerUI.ShowLowStock();
+        }
+        else if (state == StockState.OutOfStock)
+        {
+            containerUI.ShowOutOfStock();
         }
     }
 }

@@ -1,64 +1,102 @@
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerHungerManager : MonoBehaviour
+public class PlayerHungerManager : NetworkBehaviour
 {
+    public static List<PlayerHungerManager> allPlayers = new List<PlayerHungerManager>();
+
     [SerializeField] private float maxHunger = 100f;
     [SerializeField] private float hungerIncreaseRate = 2f;
 
-    [HideInInspector] public bool isDead = false;
+    public NetworkVariable<bool> isDead = new NetworkVariable<bool>(false);
 
-    private float hungerLevel = 0f;
+    private NetworkVariable<float> hungerLevel = new NetworkVariable<float>(0f);
+
+    public override void OnNetworkSpawn()
+    {
+        allPlayers.Add(this);
+        isDead.OnValueChanged += OnDeadChanged;
+
+        if (isDead.Value)
+        {
+            DisablePlayer();
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        allPlayers.Remove(this);
+        isDead.OnValueChanged -= OnDeadChanged;
+    }
 
     private void Update()
     {
-        if (isDead) return;
+        if (!IsServer || isDead.Value) return;
 
-        hungerLevel += hungerIncreaseRate * Time.deltaTime;
+        hungerLevel.Value += hungerIncreaseRate * Time.deltaTime;
 
-        if (hungerLevel >= maxHunger)
+        if (hungerLevel.Value >= maxHunger)
         {
-            hungerLevel = maxHunger;
+            hungerLevel.Value = maxHunger;
             Die();
         }
     }
 
     public float ReduceHunger(float amount)
     {
-        if (isDead) return 0f;
+        if (isDead.Value) return 0f;
 
-        hungerLevel = Mathf.Clamp(hungerLevel - amount, 0f, maxHunger);
-        Debug.Log(gameObject.name + " hunger reduced to " + hungerLevel);
+        hungerLevel.Value = Mathf.Clamp(hungerLevel.Value - amount, 0f, maxHunger);
+        Debug.Log(gameObject.name + " hunger reduced to " + hungerLevel.Value);
 
         return amount / maxHunger * 100f;
     }
 
     public void IncreaseHunger(float amount)
     {
-        if (isDead) return;
+        if (isDead.Value) return;
 
-        hungerLevel = Mathf.Clamp(hungerLevel + amount, 0f, maxHunger);
-        Debug.Log(gameObject.name + " hunger increased to " + hungerLevel);
+        hungerLevel.Value = Mathf.Clamp(hungerLevel.Value + amount, 0f, maxHunger);
+        Debug.Log(gameObject.name + " hunger increased to " + hungerLevel.Value);
     }
 
     public float GetHungerLevel()
     {
-        return hungerLevel;
+        return hungerLevel.Value;
     }
 
     public float GetHungerPercentage()
     {
-        return hungerLevel / maxHunger;
+        return hungerLevel.Value / maxHunger;
     }
 
     private void Die()
     {
-        isDead = true;
+        PlayerInteraction playerInteraction = GetComponent<PlayerInteraction>();
+        if (playerInteraction != null)
+        {
+            playerInteraction.TryDroppingFood(false);
+        }
+
+        isDead.Value = true;
+    }
+
+    private void OnDeadChanged(bool wasDead, bool nowDead)
+    {
+        if (nowDead)
+        {
+            DisablePlayer();
+        }
+    }
+
+    private void DisablePlayer()
+    {
         Debug.Log(gameObject.name + " died of hunger.");
 
         PlayerInteraction playerInteraction = GetComponent<PlayerInteraction>();
         if (playerInteraction != null)
         {
-            playerInteraction.TryDroppingFood(false);
             playerInteraction.enabled = false;
         }
 

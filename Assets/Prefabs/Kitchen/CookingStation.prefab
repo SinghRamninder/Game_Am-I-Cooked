@@ -312,7 +312,7 @@ MonoBehaviour:
   cookingColor: {r: 0.45, g: 0.85, b: 0.3, a: 1}
   burningStartColor: {r: 1, g: 0.65, b: 0.15, a: 1}
   burningEndColor: {r: 0.9, g: 0.2, b: 0.15, a: 1}
-  flashSpeed: 6
+  warningThreshold: 0.7
 --- !u!1 &1932337807173148492
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +572,7 @@ GameObject:
   - component: {fileID: 1019341908145365158}
   - component: {fileID: 6779127508972060645}
   - component: {fileID: 8514915396928862531}
+  - component: {fileID: 5196162813007928204}
   m_Layer: 0
   m_Name: CookingStation
   m_TagString: CookingStation
@@ -638,8 +639,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 046c2f8aaf51f1246b7de3174b7c0717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CookingStation
+  ShowTopMostFoldoutHeaderGroup: 1
   cookingTime: 5
   foodBurningTime: 10
+--- !u!114 &5196162813007928204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2480888651711658512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &2536971074482196663
 GameObject:
   m_ObjectHideFlags: 0

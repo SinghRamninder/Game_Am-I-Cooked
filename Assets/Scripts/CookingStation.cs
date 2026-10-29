@@ -1,7 +1,15 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class CookingStation : MonoBehaviour
+public enum CookingState
+{
+    Idle,
+    Cooking,
+    Burning
+}
+
+public class CookingStation : NetworkBehaviour
 {
     [SerializeField] private float cookingTime = 5f;
     [SerializeField] private float foodBurningTime = 10f;
@@ -11,6 +19,8 @@ public class CookingStation : MonoBehaviour
     private Coroutine cookingCoroutine;
     private FloatingMessageUI messageUI;
     private CookingProgressUI progressUI;
+    private NetworkVariable<CookingState> cookingState = new NetworkVariable<CookingState>(CookingState.Idle);
+    private NetworkVariable<float> stationProgress = new NetworkVariable<float>(0f);
 
     private void Awake()
     {
@@ -18,22 +28,35 @@ public class CookingStation : MonoBehaviour
         progressUI = GetComponentInChildren<CookingProgressUI>();
     }
 
-    public bool TryCookingFood(FoodManager food)
+    public override void OnNetworkSpawn()
+    {
+        cookingState.OnValueChanged += OnCookingStateChanged;
+        stationProgress.OnValueChanged += OnStationProgressChanged;
+        UpdateProgressUI();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        cookingState.OnValueChanged -= OnCookingStateChanged;
+        stationProgress.OnValueChanged -= OnStationProgressChanged;
+    }
+
+    public bool TryCookingFood(FoodManager food, ulong clientId)
     {
         if (isCooking)
         {
-            messageUI.ShowMessage("Cooking station is already in use.");
+            ShowMessage(clientId, "Cooking station is already in use.");
             return false;
         }
 
-        if (food.isBurnt)
+        if (food.isBurnt.Value)
         {
-            messageUI.ShowMessage("Food is already burnt.");
+            ShowMessage(clientId, "Food is already burnt.");
             return false;
         }
-        else if (food.isCooked)
+        else if (food.isCooked.Value)
         {
-            messageUI.ShowMessage("Food is already cooked.");
+            ShowMessage(clientId, "Food is already cooked.");
             return false;
         }
 
@@ -41,25 +64,23 @@ public class CookingStation : MonoBehaviour
         {
             isCooking = true;
             foodOnStation = food;
-            food.GetComponent<Transform>().SetParent(transform);
-            food.GetComponent<Transform>().localPosition = Vector3.zero;
-            food.GetComponent<Transform>().localRotation = Quaternion.identity;
+            food.SetHolder(NetworkObject);
             cookingCoroutine = StartCoroutine(CookFood(food));
 
             return true;
         }
         else
         {
-            messageUI.ShowMessage("Food is not raw and cannot be cooked.");
+            ShowMessage(clientId, "Food is not raw and cannot be cooked.");
             return false;
         }
     }
 
-    public GameObject TryTakingFood()
+    public FoodManager TryTakingFood(ulong clientId)
     {
         if (foodOnStation == null)
         {
-            messageUI.ShowMessage("No food on the cooking station.");
+            ShowMessage(clientId, "No food on the cooking station.");
             return null;
         }
 
@@ -69,9 +90,9 @@ public class CookingStation : MonoBehaviour
             cookingCoroutine = null;
         }
 
-        progressUI.HideProgress();
+        cookingState.Value = CookingState.Idle;
 
-        GameObject foodToReturn = foodOnStation.gameObject;
+        FoodManager foodToReturn = foodOnStation;
         foodOnStation = null;
         isCooking = false;
 
@@ -81,29 +102,68 @@ public class CookingStation : MonoBehaviour
     private IEnumerator CookFood(FoodManager food)
     {
         Debug.Log("Cooking started.");
+        cookingState.Value = CookingState.Cooking;
 
         while (food.cookingProgress < 1f)
         {
             food.cookingProgress += Time.deltaTime / cookingTime;
-            progressUI.ShowCookingProgress(food.cookingProgress);
+            stationProgress.Value = food.cookingProgress;
             yield return null;
         }
 
         food.cookingProgress = 1f;
-        food.isCooked = true;
+        food.isCooked.Value = true;
         Debug.Log("Food is cooked.");
 
+        cookingState.Value = CookingState.Burning;
         float burningTimer = 0f;
         while (burningTimer < foodBurningTime)
         {
             burningTimer += Time.deltaTime;
-            progressUI.ShowBurningProgress(burningTimer / foodBurningTime);
+            stationProgress.Value = burningTimer / foodBurningTime;
             yield return null;
         }
 
-        food.isBurnt = true;
+        food.isBurnt.Value = true;
         Debug.Log("Food is burnt.");
-        progressUI.HideProgress();
+        cookingState.Value = CookingState.Idle;
         cookingCoroutine = null;
+    }
+
+    private void ShowMessage(ulong clientId, string message)
+    {
+        ShowMessageRpc(message, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ShowMessageRpc(string message, RpcParams rpcParams)
+    {
+        messageUI.ShowMessage(message);
+    }
+
+    private void OnCookingStateChanged(CookingState oldState, CookingState newState)
+    {
+        UpdateProgressUI();
+    }
+
+    private void OnStationProgressChanged(float oldProgress, float newProgress)
+    {
+        UpdateProgressUI();
+    }
+
+    private void UpdateProgressUI()
+    {
+        if (cookingState.Value == CookingState.Cooking)
+        {
+            progressUI.ShowCookingProgress(stationProgress.Value);
+        }
+        else if (cookingState.Value == CookingState.Burning)
+        {
+            progressUI.ShowBurningProgress(stationProgress.Value);
+        }
+        else
+        {
+            progressUI.HideProgress();
+        }
     }
 }

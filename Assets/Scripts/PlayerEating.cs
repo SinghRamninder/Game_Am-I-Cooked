@@ -1,62 +1,69 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerEating : MonoBehaviour
+public class PlayerEating : NetworkBehaviour
 {
     [SerializeField] private float cookedFoodHungerReduction = 40f;
     [SerializeField] private float snackHungerReduction = 15f;
-    [SerializeField] private FloatingMessageUI messageUI;
-    [SerializeField] private FloatingMessageUI hungerPopupUI;
 
     private InputSystem_Actions controls;
     private PlayerInteraction playerInteraction;
     private PlayerHungerManager playerHungerManager;
+    private PlayerMessages playerMessages;
 
     private void Awake()
     {
         controls = new InputSystem_Actions();
         playerInteraction = GetComponent<PlayerInteraction>();
         playerHungerManager = GetComponent<PlayerHungerManager>();
+        playerMessages = GetComponent<PlayerMessages>();
     }
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         if (controls.Player.Eat.WasPressedThisFrame())
         {
-            TryEatingFood();
+            playerInteraction.SendRequest(InteractionType.Eat, null);
         }
 
         if (controls.Player.Drop.WasPressedThisFrame())
         {
-            playerInteraction.TryDroppingFood(false);
+            playerInteraction.SendRequest(InteractionType.Drop, null);
         }
     }
 
-    private void TryEatingFood()
+    public bool TryEatingFood()
     {
         FoodManager food = playerInteraction.GetFoodInHand();
 
         if (food == null)
         {
-            messageUI.ShowMessage("No food in hand to eat.");
-            return;
+            playerMessages.ShowMessage("No food in hand to eat.");
+            return false;
         }
 
         if (food.foodType == FoodType.Snack)
         {
             EatFood(snackHungerReduction);
+            return true;
         }
-        else if (food.isBurnt)
+        else if (food.isBurnt.Value)
         {
-            messageUI.ShowMessage("Food is burnt and cannot be eaten.");
+            playerMessages.ShowMessage("Food is burnt and cannot be eaten.");
+            return false;
         }
-        else if (food.isCooked)
+        else if (food.isCooked.Value)
         {
             EatFood(cookedFoodHungerReduction);
+            return true;
         }
         else
         {
-            messageUI.ShowMessage("Food is raw and needs to be cooked first.");
+            playerMessages.ShowMessage("Food is raw and needs to be cooked first.");
+            return false;
         }
     }
 
@@ -64,8 +71,13 @@ public class PlayerEating : MonoBehaviour
     {
         float reducedPercentage = playerHungerManager.ReduceHunger(hungerReduction);
         playerInteraction.RemoveFoodFromHand();
-        messageUI.HideMessage();
-        hungerPopupUI.ShowMessage("-" + Mathf.RoundToInt(reducedPercentage) + "%");
+        playerMessages.ShowHungerPopup(Mathf.RoundToInt(reducedPercentage));
+    }
+
+    public override void OnDestroy()
+    {
+        controls.Dispose();
+        base.OnDestroy();
     }
 
     void OnEnable()
