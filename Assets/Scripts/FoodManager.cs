@@ -12,4 +12,5 @@ public class FoodManager : MonoBehaviour
 
     [HideInInspector] public bool isCooked = false;
     [HideInInspector] public bool isBurnt = false;
+    [HideInInspector] public float cookingProgress = 0f;
 }

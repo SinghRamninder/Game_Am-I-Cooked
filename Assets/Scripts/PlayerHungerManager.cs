@@ -22,12 +22,14 @@ public class PlayerHungerManager : MonoBehaviour
         }
     }
 
-    public void ReduceHunger(float amount)
+    public float ReduceHunger(float amount)
     {
-        if (isDead) return;
+        if (isDead) return 0f;
 
         hungerLevel = Mathf.Clamp(hungerLevel - amount, 0f, maxHunger);
         Debug.Log(gameObject.name + " hunger reduced to " + hungerLevel);
+
+        return amount / maxHunger * 100f;
     }
 
     public void IncreaseHunger(float amount)

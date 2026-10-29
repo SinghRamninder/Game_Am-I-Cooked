@@ -5,6 +5,8 @@ public class PlayerEating : MonoBehaviour
 {
     [SerializeField] private float cookedFoodHungerReduction = 40f;
     [SerializeField] private float snackHungerReduction = 15f;
+    [SerializeField] private FloatingMessageUI messageUI;
+    [SerializeField] private FloatingMessageUI hungerPopupUI;
 
     private InputSystem_Actions controls;
     private PlayerInteraction playerInteraction;
@@ -23,6 +25,11 @@ public class PlayerEating : MonoBehaviour
         {
             TryEatingFood();
         }
+
+        if (controls.Player.Drop.WasPressedThisFrame())
+        {
+            playerInteraction.TryDroppingFood(false);
+        }
     }
 
     private void TryEatingFood()
@@ -31,7 +38,7 @@ public class PlayerEating : MonoBehaviour
 
         if (food == null)
         {
-            Debug.Log("No food in hand to eat.");
+            messageUI.ShowMessage("No food in hand to eat.");
             return;
         }
 
@@ -41,7 +48,7 @@ public class PlayerEating : MonoBehaviour
         }
         else if (food.isBurnt)
         {
-            Debug.Log("Food is burnt and cannot be eaten.");
+            messageUI.ShowMessage("Food is burnt and cannot be eaten.");
         }
         else if (food.isCooked)
         {
@@ -49,15 +56,16 @@ public class PlayerEating : MonoBehaviour
         }
         else
         {
-            Debug.Log("Food is raw and needs to be cooked first.");
+            messageUI.ShowMessage("Food is raw and needs to be cooked first.");
         }
     }
 
     private void EatFood(float hungerReduction)
     {
-        playerHungerManager.ReduceHunger(hungerReduction);
+        float reducedPercentage = playerHungerManager.ReduceHunger(hungerReduction);
         playerInteraction.RemoveFoodFromHand();
-        Debug.Log("Food eaten.");
+        messageUI.HideMessage();
+        hungerPopupUI.ShowMessage("-" + Mathf.RoundToInt(reducedPercentage) + "%");
     }
 
     void OnEnable()

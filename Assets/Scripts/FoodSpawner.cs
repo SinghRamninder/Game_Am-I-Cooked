@@ -8,14 +8,18 @@ public class FoodSpawner : MonoBehaviour
     [SerializeField] private int totalAvailableFood = 50;
     [SerializeField] private bool spawnRawFood = true;
     [SerializeField] private float nextSpawnTime = 5f;
+    [SerializeField] private float lowStockPercentage = 0.8f;
 
     private GameObject[] storedFood;
     private int currentFoodIndex = 0;
     private bool isContainerEmpty = false;
     private bool isContainerLoading = false;
+    private bool isLowStockShown = false;
+    private FoodContainerUI containerUI;
 
     private void Start()
     {
+        containerUI = GetComponentInChildren<FoodContainerUI>();
         storedFood = new GameObject[totalAvailableFood];
 
         if (spawnRawFood)
@@ -70,10 +74,17 @@ public class FoodSpawner : MonoBehaviour
         if (currentFoodIndex >= storedFood.Length)
         {
             isContainerEmpty = true;
+            containerUI.ShowOutOfStock();
             yield return null;
         }
         else
         {
+            if (!isLowStockShown && currentFoodIndex >= Mathf.RoundToInt(storedFood.Length * lowStockPercentage))
+            {
+                isLowStockShown = true;
+                containerUI.ShowLowStock();
+            }
+
             yield return new WaitForSeconds(nextSpawnTime);
 
             storedFood[currentFoodIndex].SetActive(true);

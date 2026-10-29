@@ -105,7 +105,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (isWithForce)
         {
-            rb.AddForce(Vector3.up * 2f, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
         }
 
         foodInHand = null;

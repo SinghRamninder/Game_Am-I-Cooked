@@ -9,23 +9,31 @@ public class CookingStation : MonoBehaviour
     private bool isCooking = false;
     private FoodManager foodOnStation;
     private Coroutine cookingCoroutine;
+    private FloatingMessageUI messageUI;
+    private CookingProgressUI progressUI;
+
+    private void Awake()
+    {
+        messageUI = GetComponentInChildren<FloatingMessageUI>();
+        progressUI = GetComponentInChildren<CookingProgressUI>();
+    }
 
     public bool TryCookingFood(FoodManager food)
     {
         if (isCooking)
         {
-            Debug.Log("Cooking station is already in use.");
+            messageUI.ShowMessage("Cooking station is already in use.");
             return false;
         }
 
         if (food.isBurnt)
         {
-            Debug.Log("Food is already burnt.");
+            messageUI.ShowMessage("Food is already burnt.");
             return false;
         }
         else if (food.isCooked)
         {
-            Debug.Log("Food is already cooked.");
+            messageUI.ShowMessage("Food is already cooked.");
             return false;
         }
 
@@ -42,7 +50,7 @@ public class CookingStation : MonoBehaviour
         }
         else
         {
-            Debug.Log("Food is not raw and cannot be cooked.");
+            messageUI.ShowMessage("Food is not raw and cannot be cooked.");
             return false;
         }
     }
@@ -51,7 +59,7 @@ public class CookingStation : MonoBehaviour
     {
         if (foodOnStation == null)
         {
-            Debug.Log("No food on the cooking station.");
+            messageUI.ShowMessage("No food on the cooking station.");
             return null;
         }
 
@@ -61,23 +69,41 @@ public class CookingStation : MonoBehaviour
             cookingCoroutine = null;
         }
 
+        progressUI.HideProgress();
+
         GameObject foodToReturn = foodOnStation.gameObject;
         foodOnStation = null;
         isCooking = false;
-        Debug.Log("Food taken from cooking station.");
 
         return foodToReturn;
     }
 
-    private IEnumerator CookFood (FoodManager food)
+    private IEnumerator CookFood(FoodManager food)
     {
         Debug.Log("Cooking started.");
-        yield return new WaitForSeconds(cookingTime);
+
+        while (food.cookingProgress < 1f)
+        {
+            food.cookingProgress += Time.deltaTime / cookingTime;
+            progressUI.ShowCookingProgress(food.cookingProgress);
+            yield return null;
+        }
+
+        food.cookingProgress = 1f;
         food.isCooked = true;
         Debug.Log("Food is cooked.");
-        yield return new WaitForSeconds(foodBurningTime);
+
+        float burningTimer = 0f;
+        while (burningTimer < foodBurningTime)
+        {
+            burningTimer += Time.deltaTime;
+            progressUI.ShowBurningProgress(burningTimer / foodBurningTime);
+            yield return null;
+        }
+
         food.isBurnt = true;
         Debug.Log("Food is burnt.");
+        progressUI.HideProgress();
         cookingCoroutine = null;
     }
 }
