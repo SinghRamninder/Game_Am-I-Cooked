@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
+    [SerializeField] private Transform holdPoint;
+
     private InputSystem_Actions controls;
     private GameObject foodInHand;
     private FoodManager foodManager;
@@ -67,7 +69,7 @@ public class PlayerInteraction : MonoBehaviour
         canPickUpFood = false;
         foodManager = foodInHand.GetComponent<FoodManager>();
 
-        foodInHand.transform.SetParent(transform);
+        foodInHand.transform.SetParent(holdPoint);
         foodInHand.transform.localPosition = Vector3.zero;
         foodInHand.transform.localRotation = Quaternion.identity;
 
@@ -77,10 +79,13 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         Rigidbody rb = foodInHand.GetComponentInChildren<Rigidbody>();
+        if (!rb.isKinematic)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
         rb.isKinematic = true;
         rb.detectCollisions = false;
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
     }
 
     public void TryDroppingFood(bool isWithForce)
