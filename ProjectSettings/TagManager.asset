@@ -8,6 +8,7 @@ TagManager:
   - FoodSpawner
   - CookingStation
   - KitchenObject
+  - Dustbin
   layers:
   - Default
   - TransparentFX

@@ -889,6 +889,7 @@ GameObject:
   - component: {fileID: 3056549597730384373}
   - component: {fileID: 9024352602958493507}
   - component: {fileID: 5956631671004295924}
+  - component: {fileID: 2684945370618158374}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -979,7 +980,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3150089998
+  GlobalObjectIdHash: 2872095397
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -1049,6 +1050,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  deathFrame: -1
 --- !u!114 &8309763145142056078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1140,6 +1142,23 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   colorRing: {fileID: 6590702044731546010}
   nameText: {fileID: 3846016291578561073}
+  bodyRenderer: {fileID: 4169161623042218110}
+  headRenderer: {fileID: 1906262633692486081}
+  characterBodies:
+  - {fileID: 988656143610355917, guid: 5cb5f471666c80646915f6c99876e00f, type: 3}
+  - {fileID: 988656143610355917, guid: 94c170f7e5f31b74699d68e780be2c4e, type: 3}
+  - {fileID: 988656143610355917, guid: 94c02ba2f473d9d4db449465bd538f1c, type: 3}
+  - {fileID: 988656143610355917, guid: 97569988424cbe345bbd6313398eb59a, type: 3}
+  characterHeads:
+  - {fileID: -1793059242609255079, guid: 5cb5f471666c80646915f6c99876e00f, type: 3}
+  - {fileID: -1793059242609255079, guid: 94c170f7e5f31b74699d68e780be2c4e, type: 3}
+  - {fileID: -1793059242609255079, guid: 94c02ba2f473d9d4db449465bd538f1c, type: 3}
+  - {fileID: -1793059242609255079, guid: 97569988424cbe345bbd6313398eb59a, type: 3}
+  characterIcons:
+  - {fileID: 3692087639475975956, guid: 6bf01194c86aaa5458474bb438812bc6, type: 3}
+  - {fileID: -3689660838194350242, guid: ddf85f8bfc39e664e9d593939810268b, type: 3}
+  - {fileID: 1671390274446659167, guid: 62aaef0514040e648bba3d606054b497, type: 3}
+  - {fileID: -3528140498969095476, guid: 61f4c785e9f0b884eaed601e114325e0, type: 3}
   playerIndex:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -1183,6 +1202,11 @@ MonoBehaviour:
         byte0027: 0
         byte0028: 0
         byte0029: 0
+  characterIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!114 &8640148935821259922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1212,6 +1236,9 @@ MonoBehaviour:
   stunStars: {fileID: 4457811293316612271}
   shakeAmount: 0.06
   shakeSpeed: 45
+  cameraShakePerForce: 0.035
+  cameraShakeDuration: 0.3
+  knockdownCameraShake: 0.5
   stunState:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -1284,6 +1311,30 @@ MonoBehaviour:
   hitVolume: 1
   hitMinDistance: 2
   hitMaxDistance: 22
+--- !u!114 &2684945370618158374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3419279171561265758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a5de1ddd0fd8f5428c03e5b0fb07e17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHoldPose
+  animator: {fileID: 1689891448022658854}
+  leftArm: {fileID: 8353909977365270891}
+  rightArm: {fileID: 8305529927552357884}
+  holdPoint: {fileID: 2902375867192313660}
+  leftHandTip: {x: -0.26, y: 0, z: 0}
+  rightHandTip: {x: 0.26, y: 0, z: 0}
+  holdHeight: 0.55
+  bodyFront: 0.3
+  minHandSpread: 0.1
+  maxHandSpread: 0.42
+  blendSpeed: 8
+  swingBlendSpeed: 14
 --- !u!1 &3622792690895117141
 GameObject:
   m_ObjectHideFlags: 0

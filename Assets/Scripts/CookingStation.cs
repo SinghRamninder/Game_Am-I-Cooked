@@ -17,6 +17,9 @@ public class CookingStation : NetworkBehaviour
     [SerializeField] private float sizzleVolume = 1f;
     [SerializeField] private float soundMinDistance = 2f;
     [SerializeField] private float soundMaxDistance = 22f;
+    [SerializeField] private ParticleSystem cookingSmoke;
+    [SerializeField] private float cookingSmokeRate = 5f;
+    [SerializeField] private float burningSmokeRate = 9f;
 
     private bool isCooking = false;
     private AudioSource audioSource;
@@ -46,6 +49,7 @@ public class CookingStation : NetworkBehaviour
         cookingState.OnValueChanged += OnCookingStateChanged;
         stationProgress.OnValueChanged += OnStationProgressChanged;
         UpdateProgressUI();
+        UpdateSmoke();
     }
 
     public override void OnNetworkDespawn()
@@ -164,6 +168,31 @@ public class CookingStation : NetworkBehaviour
     private void OnCookingStateChanged(CookingState oldState, CookingState newState)
     {
         UpdateProgressUI();
+        UpdateSmoke();
+    }
+
+    private void UpdateSmoke()
+    {
+        if (cookingState.Value == CookingState.Idle)
+        {
+            cookingSmoke.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            return;
+        }
+
+        ParticleSystem.EmissionModule emission = cookingSmoke.emission;
+        if (cookingState.Value == CookingState.Burning)
+        {
+            emission.rateOverTime = burningSmokeRate;
+        }
+        else
+        {
+            emission.rateOverTime = cookingSmokeRate;
+        }
+
+        if (!cookingSmoke.isPlaying)
+        {
+            cookingSmoke.Play();
+        }
     }
 
     private void OnStationProgressChanged(float oldProgress, float newProgress)

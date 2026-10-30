@@ -18,6 +18,7 @@ public class PlayerRagdoll : MonoBehaviour
     private Vector3[] animatedPositions;
     private Quaternion[] animatedRotations;
     private bool isRagdoll = false;
+    private bool isDead = false;
     private bool isOwner = false;
     private float getUpTimer = 0f;
     private float blendTimer = -1f;
@@ -59,9 +60,32 @@ public class PlayerRagdoll : MonoBehaviour
         blendTimer = -1f;
     }
 
+    public void PlayDeath()
+    {
+        isDead = true;
+        if (isRagdoll) return;
+
+        blendTimer = -1f;
+        animator.Play("Die", 0, 0f);
+    }
+
+    public void PlayRevive()
+    {
+        if (!isDead) return;
+
+        isDead = false;
+        if (isRagdoll)
+        {
+            getUpTimer = 0f;
+            return;
+        }
+
+        animator.Play("GetUp", 0, 0f);
+    }
+
     private void Update()
     {
-        if (!isRagdoll) return;
+        if (!isRagdoll || isDead) return;
 
         getUpTimer -= Time.deltaTime;
         if (getUpTimer <= 0f)

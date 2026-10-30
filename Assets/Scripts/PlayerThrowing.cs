@@ -249,6 +249,8 @@ public class PlayerThrowing : NetworkBehaviour
     private void ThrowRpc(Vector3 direction, float charge)
     {
         if (playerHungerManager.isDead.Value || playerCombat.IsStunned()) return;
+        if (GameOverManager.Instance != null && GameOverManager.Instance.IsGameOver()) return;
+        if (IntroSequence.Instance != null && IntroSequence.Instance.IsLocked()) return;
 
         KitchenObject item = playerInteraction.GetObjectInHand();
         if (item == null) return;

@@ -170,8 +170,14 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   rawFoodPrefab:
   - {fileID: 5257383005662587772, guid: 9c0b4fab6bb2bd84da8fc16363704fff, type: 3}
+  - {fileID: 5257383005662587772, guid: 1709ba77a0793b242990249256e03174, type: 3}
+  - {fileID: 5257383005662587772, guid: 39fd7e902866a8640be0e6d64702bb4a, type: 3}
+  - {fileID: 5257383005662587772, guid: 5453230959125b049af7cce94053c91e, type: 3}
   snackPrefab:
   - {fileID: 4354159870098171656, guid: ae599dd9f4c2cbd4ca314568876fd790, type: 3}
+  - {fileID: 4354159870098171656, guid: 2daa9c16420ceb14a850ed563c5ef761, type: 3}
+  - {fileID: 4354159870098171656, guid: 67dd7d5faa07673439490eb7766f6e8b, type: 3}
+  - {fileID: 4354159870098171656, guid: e8df851410e2c8f418460a7c0e523c1f, type: 3}
   totalAvailableFood: 10
   spawnRawFood: 1
   nextSpawnTime: 5

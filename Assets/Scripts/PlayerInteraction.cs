@@ -15,6 +15,7 @@ public class PlayerInteraction : NetworkBehaviour
     private KitchenObject nearbyObject;
     private FoodSpawner foodSpawner;
     private CookingStation cookingStation;
+    private Dustbin dustbin;
     private PlayerEating playerEating;
     private PlayerCombat playerCombat;
     private PlayerMessages playerMessages;
@@ -52,6 +53,10 @@ public class PlayerInteraction : NetworkBehaviour
             if (IsHoldingFood() && cookingStation != null)
             {
                 target = cookingStation.NetworkObject;
+            }
+            else if (IsHoldingFood() && dustbin != null)
+            {
+                target = dustbin.NetworkObject;
             }
         }
         else if (nearbyFood != null && !nearbyFood.HasHolder())
@@ -131,6 +136,12 @@ public class PlayerInteraction : NetworkBehaviour
             return TryUsingCookingStation(station);
         }
 
+        Dustbin dustbinTarget = target.GetComponent<Dustbin>();
+        if (dustbinTarget != null)
+        {
+            return TryDiscardingFood(dustbinTarget);
+        }
+
         HoldableItem item = target.GetComponent<HoldableItem>();
         if (item != null)
         {
@@ -190,6 +201,19 @@ public class PlayerInteraction : NetworkBehaviour
         if (foodOnStation == null) return false;
 
         PickupItem(foodOnStation);
+        return true;
+    }
+
+    private bool TryDiscardingFood(Dustbin dustbinTarget)
+    {
+        if (GetFoodInHand() == null)
+        {
+            playerMessages.ShowMessage("Only food can go in the dustbin.");
+            return false;
+        }
+
+        RemoveFoodFromHand();
+        dustbinTarget.PlayDiscard();
         return true;
     }
 
@@ -256,6 +280,14 @@ public class PlayerInteraction : NetworkBehaviour
     public KitchenObject GetObjectInHand()
     {
         return heldItem as KitchenObject;
+    }
+
+    public HoldableItem GetHeldItem()
+    {
+        NetworkObject itemObject;
+        if (!heldItemReference.Value.TryGet(out itemObject)) return null;
+
+        return itemObject.GetComponent<HoldableItem>();
     }
 
     public KitchenObject GetHeldKitchenObject()
@@ -355,6 +387,11 @@ public class PlayerInteraction : NetworkBehaviour
         {
             cookingStation = other.GetComponent<CookingStation>();
         }
+
+        if (other.CompareTag("Dustbin"))
+        {
+            dustbin = other.GetComponent<Dustbin>();
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -380,6 +417,11 @@ public class PlayerInteraction : NetworkBehaviour
         if (other.CompareTag("CookingStation"))
         {
             cookingStation = null;
+        }
+
+        if (other.CompareTag("Dustbin"))
+        {
+            dustbin = null;
         }
     }
 

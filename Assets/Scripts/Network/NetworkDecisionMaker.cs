@@ -44,6 +44,9 @@ public class NetworkDecisionMaker : MonoBehaviour
 
     public void AddRequest(PlayerInteraction player, InteractionType type, NetworkObjectReference target, double pressTime)
     {
+        if (GameOverManager.Instance != null && GameOverManager.Instance.IsGameOver()) return;
+        if (IntroSequence.Instance != null && IntroSequence.Instance.IsLocked()) return;
+
         double receivedTime = NetworkManager.Singleton.ServerTime.Time;
 
         InteractionRequest request = new InteractionRequest();
@@ -94,8 +97,10 @@ public class NetworkDecisionMaker : MonoBehaviour
             NetworkObject target;
             request.target.TryGet(out target);
 
+            bool canBeClaimed = target != null && request.type == InteractionType.Interact && target.GetComponent<Dustbin>() == null;
+
             int claimedIndex = -1;
-            if (target != null && request.type == InteractionType.Interact)
+            if (canBeClaimed)
             {
                 claimedIndex = claimedTargets.IndexOf(target);
             }
@@ -110,7 +115,7 @@ public class NetworkDecisionMaker : MonoBehaviour
 
             bool success = request.player.ExecuteRequest(request.type, target);
 
-            if (success && target != null && request.type == InteractionType.Interact)
+            if (success && canBeClaimed)
             {
                 claimedTargets.Add(target);
                 claimedByPlayers.Add(request.player);

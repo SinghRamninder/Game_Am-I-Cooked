@@ -28,6 +28,9 @@ public class PlayerCombat : NetworkBehaviour
     [SerializeField] private ParticleSystem stunStars;
     [SerializeField] private float shakeAmount = 0.06f;
     [SerializeField] private float shakeSpeed = 45f;
+    [SerializeField] private float cameraShakePerForce = 0.035f;
+    [SerializeField] private float cameraShakeDuration = 0.3f;
+    [SerializeField] private float knockdownCameraShake = 0.5f;
 
     public NetworkVariable<StunState> stunState = new NetworkVariable<StunState>(StunState.None);
 
@@ -90,6 +93,13 @@ public class PlayerCombat : NetworkBehaviour
     public bool IsStunned()
     {
         return stunState.Value != StunState.None;
+    }
+
+    public void ClearStun()
+    {
+        if (!IsServer) return;
+
+        stunState.Value = StunState.None;
     }
 
     public void TryAttacking()
@@ -267,12 +277,25 @@ public class PlayerCombat : NetworkBehaviour
     private void KnockDownRpc(Vector3 force)
     {
         playerRagdoll.Fall(force, IsOwner);
+        ShakeCamera(knockdownCameraShake, cameraShakeDuration * 1.6f);
     }
 
     [Rpc(SendTo.Owner)]
     private void ApplyKnockbackRpc(Vector3 force)
     {
         playerMovement.AddKnockback(force);
+        ShakeCamera(force.magnitude * cameraShakePerForce, cameraShakeDuration);
+    }
+
+    private void ShakeCamera(float strength, float duration)
+    {
+        if (!IsLocalPlayer || Camera.main == null) return;
+
+        PlayerCamera playerCamera = Camera.main.GetComponent<PlayerCamera>();
+        if (playerCamera != null)
+        {
+            playerCamera.Shake(strength, duration);
+        }
     }
 
     [Rpc(SendTo.Everyone)]

@@ -7,6 +7,8 @@ public class HoldableItem : NetworkBehaviour
     private Transform followPoint;
     private Rigidbody rb;
     private Collider[] itemColliders;
+    private Bounds localBounds;
+    private bool hasLocalBounds = false;
 
     private void Awake()
     {
@@ -55,6 +57,39 @@ public class HoldableItem : NetworkBehaviour
     public float GetMass()
     {
         return rb.mass;
+    }
+
+    public Bounds GetLocalBounds()
+    {
+        if (hasLocalBounds) return localBounds;
+
+        hasLocalBounds = true;
+        localBounds = new Bounds(Vector3.zero, Vector3.zero);
+        bool isFirstPoint = true;
+
+        foreach (MeshFilter meshFilter in GetComponentsInChildren<MeshFilter>(true))
+        {
+            if (meshFilter.sharedMesh == null) continue;
+
+            Bounds meshBounds = meshFilter.sharedMesh.bounds;
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 corner = meshBounds.center + Vector3.Scale(meshBounds.extents, new Vector3((i & 1) == 0 ? -1f : 1f, (i & 2) == 0 ? -1f : 1f, (i & 4) == 0 ? -1f : 1f));
+                Vector3 localCorner = Quaternion.Inverse(transform.rotation) * (meshFilter.transform.TransformPoint(corner) - transform.position);
+
+                if (isFirstPoint)
+                {
+                    localBounds = new Bounds(localCorner, Vector3.zero);
+                    isFirstPoint = false;
+                }
+                else
+                {
+                    localBounds.Encapsulate(localCorner);
+                }
+            }
+        }
+
+        return localBounds;
     }
 
     public void AddImpulse(Vector3 force)

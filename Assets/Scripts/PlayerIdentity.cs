@@ -15,21 +15,42 @@ public class PlayerIdentity : NetworkBehaviour
 
     [SerializeField] private Renderer colorRing;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private SkinnedMeshRenderer bodyRenderer;
+    [SerializeField] private SkinnedMeshRenderer headRenderer;
+    [SerializeField] private Mesh[] characterBodies;
+    [SerializeField] private Mesh[] characterHeads;
+    [SerializeField] private Sprite[] characterIcons;
 
     public NetworkVariable<int> playerIndex = new NetworkVariable<int>(0);
     public NetworkVariable<FixedString32Bytes> playerName = new NetworkVariable<FixedString32Bytes>();
+    public NetworkVariable<int> characterIndex = new NetworkVariable<int>(0);
 
     public override void OnNetworkSpawn()
     {
         playerIndex.OnValueChanged += OnPlayerIndexChanged;
         playerName.OnValueChanged += OnPlayerNameChanged;
+        characterIndex.OnValueChanged += OnCharacterIndexChanged;
         ApplyIdentity();
+        ApplyCharacter();
     }
 
     public override void OnNetworkDespawn()
     {
         playerIndex.OnValueChanged -= OnPlayerIndexChanged;
         playerName.OnValueChanged -= OnPlayerNameChanged;
+        characterIndex.OnValueChanged -= OnCharacterIndexChanged;
+    }
+
+    public int GetCharacterCount()
+    {
+        return characterBodies.Length;
+    }
+
+    public Sprite GetCharacterIcon()
+    {
+        if (characterIcons.Length == 0) return null;
+
+        return characterIcons[Mathf.Abs(characterIndex.Value) % characterIcons.Length];
     }
 
     public static Color GetPlayerColor(int index)
@@ -55,6 +76,20 @@ public class PlayerIdentity : NetworkBehaviour
     private void OnPlayerNameChanged(FixedString32Bytes oldName, FixedString32Bytes newName)
     {
         ApplyIdentity();
+    }
+
+    private void OnCharacterIndexChanged(int oldIndex, int newIndex)
+    {
+        ApplyCharacter();
+    }
+
+    private void ApplyCharacter()
+    {
+        if (characterBodies.Length == 0) return;
+
+        int index = Mathf.Abs(characterIndex.Value) % characterBodies.Length;
+        bodyRenderer.sharedMesh = characterBodies[index];
+        headRenderer.sharedMesh = characterHeads[index];
     }
 
     private void ApplyIdentity()

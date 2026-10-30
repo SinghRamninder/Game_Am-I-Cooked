@@ -182,7 +182,11 @@ public class NetworkConnectionManager : MonoBehaviour
         if (isLeaving) return;
 
         disconnectMessage = networkManager.DisconnectReason;
-        if (string.IsNullOrEmpty(disconnectMessage) || disconnectMessage.StartsWith("["))
+        if (GameOverManager.Instance != null && GameOverManager.Instance.IsGameOver())
+        {
+            disconnectMessage = "The host went back to the main menu.";
+        }
+        else if (string.IsNullOrEmpty(disconnectMessage) || disconnectMessage.StartsWith("["))
         {
             disconnectMessage = "The host left or the connection was lost.";
         }
