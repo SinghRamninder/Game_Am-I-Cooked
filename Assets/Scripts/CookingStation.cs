@@ -13,8 +13,13 @@ public class CookingStation : NetworkBehaviour
 {
     [SerializeField] private float cookingTime = 5f;
     [SerializeField] private float foodBurningTime = 10f;
+    [SerializeField] private AudioClip sizzleSound;
+    [SerializeField] private float sizzleVolume = 1f;
+    [SerializeField] private float soundMinDistance = 2f;
+    [SerializeField] private float soundMaxDistance = 22f;
 
     private bool isCooking = false;
+    private AudioSource audioSource;
     private FoodManager foodOnStation;
     private Coroutine cookingCoroutine;
     private FloatingMessageUI messageUI;
@@ -26,6 +31,14 @@ public class CookingStation : NetworkBehaviour
     {
         messageUI = GetComponentInChildren<FloatingMessageUI>();
         progressUI = GetComponentInChildren<CookingProgressUI>();
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
+        audioSource.rolloffMode = AudioRolloffMode.Linear;
+        audioSource.minDistance = soundMinDistance;
+        audioSource.maxDistance = soundMaxDistance;
+        audioSource.dopplerLevel = 0f;
     }
 
     public override void OnNetworkSpawn()
@@ -66,6 +79,7 @@ public class CookingStation : NetworkBehaviour
             foodOnStation = food;
             food.SetHolder(NetworkObject);
             cookingCoroutine = StartCoroutine(CookFood(food));
+            PlaySizzleRpc();
 
             return true;
         }
@@ -139,6 +153,12 @@ public class CookingStation : NetworkBehaviour
     private void ShowMessageRpc(string message, RpcParams rpcParams)
     {
         messageUI.ShowMessage(message);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void PlaySizzleRpc()
+    {
+        audioSource.PlayOneShot(sizzleSound, sizzleVolume);
     }
 
     private void OnCookingStateChanged(CookingState oldState, CookingState newState)

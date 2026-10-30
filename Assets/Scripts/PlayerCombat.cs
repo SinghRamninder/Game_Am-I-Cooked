@@ -38,6 +38,7 @@ public class PlayerCombat : NetworkBehaviour
     private Animator animator;
     private PlayerRagdoll playerRagdoll;
     private PlayerThrowing playerThrowing;
+    private PlayerSounds playerSounds;
     private Vector3 modelStartPosition;
     private List<float> recentSlapTimes = new List<float>();
     private float nextAttackTime = 0f;
@@ -52,6 +53,7 @@ public class PlayerCombat : NetworkBehaviour
         animator = GetComponentInChildren<Animator>();
         playerRagdoll = GetComponent<PlayerRagdoll>();
         playerThrowing = GetComponent<PlayerThrowing>();
+        playerSounds = GetComponent<PlayerSounds>();
         modelStartPosition = modelTransform.localPosition;
     }
 
@@ -281,6 +283,7 @@ public class PlayerCombat : NetworkBehaviour
         if (isHit)
         {
             SpawnHitEffect(hitPoint, weaponMass);
+            playerSounds.PlayHitSound(hitPoint, weaponMass > 0f);
         }
     }
 
@@ -288,6 +291,7 @@ public class PlayerCombat : NetworkBehaviour
     private void PlayHitEffectRpc(Vector3 hitPoint, float weaponMass)
     {
         SpawnHitEffect(hitPoint, weaponMass);
+        playerSounds.PlayHitSound(hitPoint, true);
     }
 
     private void SpawnHitEffect(Vector3 hitPoint, float weaponMass)

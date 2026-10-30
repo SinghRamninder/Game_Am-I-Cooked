@@ -642,6 +642,10 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   cookingTime: 5
   foodBurningTime: 10
+  sizzleSound: {fileID: 8300000, guid: f775cfcd003276f468ed9fb759b2c3dd, type: 3}
+  sizzleVolume: 1
+  soundMinDistance: 2
+  soundMaxDistance: 22
 --- !u!114 &5196162813007928204
 MonoBehaviour:
   m_ObjectHideFlags: 0

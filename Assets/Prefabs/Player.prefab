@@ -888,6 +888,7 @@ GameObject:
   - component: {fileID: 8640148935821259922}
   - component: {fileID: 3056549597730384373}
   - component: {fileID: 9024352602958493507}
+  - component: {fileID: 5956631671004295924}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1263,6 +1264,26 @@ MonoBehaviour:
   baseFlightTime: 0.3
   flightTimePerMeter: 0.07
   linePointCount: 30
+--- !u!114 &5956631671004295924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3419279171561265758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3c8f4bdca2168941841b3dc0d68d24a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSounds
+  ShowTopMostFoldoutHeaderGroup: 1
+  eatSound: {fileID: 8300000, guid: 5cef470e07869eb40a9a3b75c9de6017, type: 3}
+  slapSound: {fileID: 8300000, guid: 5d1fc24e5c2c74e43ac18231b05e33bf, type: 3}
+  objectHitSound: {fileID: 8300000, guid: 18e34df958d24744ebc5ef50fe153f5c, type: 3}
+  eatVolume: 1
+  hitVolume: 1
+  hitMinDistance: 2
+  hitMaxDistance: 22
 --- !u!1 &3622792690895117141
 GameObject:
   m_ObjectHideFlags: 0

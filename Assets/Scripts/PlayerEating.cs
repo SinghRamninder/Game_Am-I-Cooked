@@ -12,6 +12,7 @@ public class PlayerEating : NetworkBehaviour
     private PlayerHungerManager playerHungerManager;
     private PlayerMessages playerMessages;
     private PlayerThrowing playerThrowing;
+    private PlayerSounds playerSounds;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class PlayerEating : NetworkBehaviour
         playerHungerManager = GetComponent<PlayerHungerManager>();
         playerMessages = GetComponent<PlayerMessages>();
         playerThrowing = GetComponent<PlayerThrowing>();
+        playerSounds = GetComponent<PlayerSounds>();
     }
 
     private void Update()
@@ -74,6 +76,7 @@ public class PlayerEating : NetworkBehaviour
         float reducedPercentage = playerHungerManager.ReduceHunger(hungerReduction);
         playerInteraction.RemoveFoodFromHand();
         playerMessages.ShowHungerPopup(Mathf.RoundToInt(reducedPercentage));
+        playerSounds.PlayEatSound();
     }
 
     public override void OnDestroy()
