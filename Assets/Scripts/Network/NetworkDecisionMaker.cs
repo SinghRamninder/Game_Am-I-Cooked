@@ -109,7 +109,6 @@ public class NetworkDecisionMaker : MonoBehaviour
             {
                 string winnerName = claimedByPlayers[claimedIndex].GetPlayerName();
                 request.player.ShowMessage("Too slow! " + winnerName + " got there first.");
-                Debug.Log("Decision: " + winnerName + " beat " + request.player.GetPlayerName() + " to " + target.name);
                 continue;
             }
 

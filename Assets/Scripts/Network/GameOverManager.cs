@@ -105,7 +105,6 @@ public class GameOverManager : NetworkBehaviour
         if (winner != null)
         {
             winnerIndex = winner.GetComponent<PlayerIdentity>().playerIndex.Value;
-            Debug.Log("Game over. Winner: " + winner.name);
         }
 
         ShowGameOverRpc(winnerIndex);

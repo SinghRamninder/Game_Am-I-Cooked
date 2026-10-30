@@ -69,7 +69,6 @@ public class PlayerHungerManager : NetworkBehaviour
         if (isDead.Value) return 0f;
 
         hungerLevel.Value = Mathf.Clamp(hungerLevel.Value - amount, 0f, maxHunger);
-        Debug.Log(gameObject.name + " hunger reduced to " + hungerLevel.Value);
 
         return amount / maxHunger * 100f;
     }
@@ -79,7 +78,6 @@ public class PlayerHungerManager : NetworkBehaviour
         if (isDead.Value) return;
 
         hungerLevel.Value = Mathf.Clamp(hungerLevel.Value + amount, 0f, maxHunger);
-        Debug.Log(gameObject.name + " hunger increased to " + hungerLevel.Value);
     }
 
     public float GetHungerLevel()
@@ -129,7 +127,6 @@ public class PlayerHungerManager : NetworkBehaviour
 
     private void DisablePlayer()
     {
-        Debug.Log(gameObject.name + " died of hunger.");
         SetPlayerEnabled(false);
         playerRagdoll.PlayDeath();
     }

@@ -74,7 +74,6 @@ public class SessionManager : NetworkBehaviour
         data.playerName.CopyFromTruncated(NetworkConnectionManager.Instance.GetPlayerName(clientId));
 
         players.Add(data);
-        Debug.Log(data.playerName + " joined as player " + (data.playerIndex + 1));
     }
 
     private int GetFreePlayerIndex()

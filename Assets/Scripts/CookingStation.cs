@@ -119,7 +119,6 @@ public class CookingStation : NetworkBehaviour
 
     private IEnumerator CookFood(FoodManager food)
     {
-        Debug.Log("Cooking started.");
         cookingState.Value = CookingState.Cooking;
 
         while (food.cookingProgress < 1f)
@@ -131,7 +130,6 @@ public class CookingStation : NetworkBehaviour
 
         food.cookingProgress = 1f;
         food.isCooked.Value = true;
-        Debug.Log("Food is cooked.");
 
         cookingState.Value = CookingState.Burning;
         float burningTimer = 0f;
@@ -143,7 +141,6 @@ public class CookingStation : NetworkBehaviour
         }
 
         food.isBurnt.Value = true;
-        Debug.Log("Food is burnt.");
         cookingState.Value = CookingState.Idle;
         cookingCoroutine = null;
     }

@@ -191,7 +191,6 @@ public class NetworkConnectionManager : MonoBehaviour
             disconnectMessage = "The host left or the connection was lost.";
         }
 
-        Debug.Log("Disconnected: " + disconnectMessage);
         LeaveGame();
     }
 }

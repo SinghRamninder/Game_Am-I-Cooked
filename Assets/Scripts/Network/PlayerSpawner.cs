@@ -25,7 +25,6 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (NetworkManager.Singleton == null)
         {
-            Debug.Log("No network running, starting a test host.");
             Instantiate(networkManagerPrefab);
             NetworkConnectionManager.Instance.StartHost("Player");
             SpawnAllPlayers();

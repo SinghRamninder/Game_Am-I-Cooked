@@ -71,13 +71,11 @@ public class FoodSpawner : NetworkBehaviour
     {
         if (isContainerEmpty)
         {
-            Debug.Log("Container is empty.");
             return null;
         }
 
         if (isContainerLoading || foodInContainer == null)
         {
-            Debug.Log("Container is loading...");
             return null;
         }
         else

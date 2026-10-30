@@ -380,7 +380,6 @@ public class PlayerInteraction : NetworkBehaviour
         if (other.CompareTag("FoodSpawner"))
         {
             foodSpawner = other.GetComponent<FoodSpawner>();
-            Debug.Log("FoodSpawner detected");
         }
 
         if (other.CompareTag("CookingStation"))
@@ -411,7 +410,6 @@ public class PlayerInteraction : NetworkBehaviour
         if (other.CompareTag("FoodSpawner"))
         {
             foodSpawner = null;
-            Debug.Log("FoodSpawner left");
         }
 
         if (other.CompareTag("CookingStation"))
