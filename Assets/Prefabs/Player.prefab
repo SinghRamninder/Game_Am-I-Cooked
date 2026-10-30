@@ -385,7 +385,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: dd1965607b66e5147b442d5cb5fcd635, type: 2}
   m_Color: {r: 0, g: 0, b: 0, a: 0.78}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -424,6 +424,7 @@ MonoBehaviour:
   floatSpeed: 25
   maxTextWidth: 420
   backgroundPadding: {x: 18, y: 8}
+  screenMargin: 12
 --- !u!1 &2164457739218506433
 GameObject:
   m_ObjectHideFlags: 0
@@ -492,7 +493,7 @@ MonoBehaviour:
   m_text: -40%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f2f06b3b58ae8a440bb362d5e4d41eb2, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: a2eb6f823d3812f45ab95b064cbc18bc, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 6165b7d11bc991d49af645d3e236fc71, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -980,7 +981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2872095397
+  GlobalObjectIdHash: 3150089998
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -1028,7 +1029,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   holdPoint: {fileID: 2902375867192313660}
   interactRange: 2.5
-  dropForce: 5
+  dropForwardForce: 2.5
+  dropUpForce: 2
 --- !u!114 &5884061588820077566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1043,7 +1045,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHungerManager
   ShowTopMostFoldoutHeaderGroup: 1
   maxHunger: 100
-  hungerIncreaseRate: 2
+  hungerIncreaseRate: 1.5
   hungerPerCarriedMass: 0.15
   isDead:
     UpdateTraits:
@@ -1220,8 +1222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  slapRange: 1.6
-  objectHitRange: 2
+  slapRange: 2
+  objectHitRange: 2.4
   attackCooldown: 0.45
   slapForce: 4
   objectForcePerMass: 2.5
@@ -1536,6 +1538,7 @@ MonoBehaviour:
   floatSpeed: 45
   maxTextWidth: 240
   backgroundPadding: {x: 4, y: 2}
+  screenMargin: 12
 --- !u!1 &3986418512464944487
 GameObject:
   m_ObjectHideFlags: 0
@@ -1604,7 +1607,7 @@ MonoBehaviour:
   m_text: Food is raw and needs to be cooked first.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f2f06b3b58ae8a440bb362d5e4d41eb2, type: 2}
-  m_sharedMaterial: {fileID: 4287375891651068580, guid: f2f06b3b58ae8a440bb362d5e4d41eb2, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 3dd4cc9868b5b48428cf07e5f6598971, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

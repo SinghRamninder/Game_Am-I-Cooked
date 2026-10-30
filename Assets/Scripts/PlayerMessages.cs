@@ -11,6 +11,11 @@ public class PlayerMessages : NetworkBehaviour
         ShowMessageRpc(message);
     }
 
+    public void ShowLocalMessage(string message)
+    {
+        messageUI.ShowMessage(message);
+    }
+
     public void ShowHungerPopup(int reducedPercentage)
     {
         ShowHungerPopupRpc(reducedPercentage);

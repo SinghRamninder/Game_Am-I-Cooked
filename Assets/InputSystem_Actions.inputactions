@@ -47,6 +47,16 @@
                     "priority": 0
                 },
                 {
+                    "name": "Throw",
+                    "type": "Button",
+                    "id": "3f6d2a7e-9b1c-4c55-8e2a-6a7f1d4b9c21",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
                     "name": "Look",
                     "type": "Value",
                     "id": "6b444451-8a00-4d00-a97e-f47457f736a8",
@@ -110,16 +120,6 @@
                     "name": "Sprint",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Throw",
-                    "type": "Button",
-                    "id": "3f6d2a7e-9b1c-4c55-8e2a-6a7f1d4b9c21",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",

@@ -385,7 +385,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: dd1965607b66e5147b442d5cb5fcd635, type: 2}
   m_Color: {r: 0, g: 0, b: 0, a: 0.78}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -424,6 +424,7 @@ MonoBehaviour:
   floatSpeed: 25
   maxTextWidth: 420
   backgroundPadding: {x: 18, y: 8}
+  screenMargin: 12
 --- !u!1 &2054455477658479202
 GameObject:
   m_ObjectHideFlags: 0
@@ -492,13 +493,13 @@ MonoBehaviour:
   m_text: Cooking station is already in use.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f2f06b3b58ae8a440bb362d5e4d41eb2, type: 2}
-  m_sharedMaterial: {fileID: 4287375891651068580, guid: f2f06b3b58ae8a440bb362d5e4d41eb2, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 3dd4cc9868b5b48428cf07e5f6598971, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293326847
   m_fontColor: {r: 1, g: 0.97, b: 0.9, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -511,7 +512,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -571,8 +572,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1019341908145365158}
   - component: {fileID: 6779127508972060645}
-  - component: {fileID: 8514915396928862531}
   - component: {fileID: 5196162813007928204}
+  - component: {fileID: 8514915396928862531}
   m_Layer: 0
   m_Name: CookingStation
   m_TagString: CookingStation
@@ -628,6 +629,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.3, y: 1.3, z: 2.3}
   m_Center: {x: 0, y: -0.35, z: -0.55}
+--- !u!114 &5196162813007928204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2480888651711658512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2228469756
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &8514915396928862531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,33 +678,6 @@ MonoBehaviour:
   cookingSmoke: {fileID: 5324952427706243593}
   cookingSmokeRate: 5
   burningSmokeRate: 9
---- !u!114 &5196162813007928204
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2480888651711658512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  m_InScenePlacedDisabledByDefault: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  m_InScenePlaced: 0
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!1 &2536971074482196663
 GameObject:
   m_ObjectHideFlags: 0
@@ -6388,7 +6389,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0

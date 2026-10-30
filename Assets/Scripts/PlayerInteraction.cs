@@ -6,7 +6,8 @@ public class PlayerInteraction : NetworkBehaviour
 {
     [SerializeField] private Transform holdPoint;
     [SerializeField] private float interactRange = 2.5f;
-    [SerializeField] private float dropForce = 5f;
+    [SerializeField] private float dropForwardForce = 2.5f;
+    [SerializeField] private float dropUpForce = 2f;
 
     private InputSystem_Actions controls;
     private NetworkVariable<NetworkObjectReference> heldItemReference = new NetworkVariable<NetworkObjectReference>();
@@ -58,6 +59,10 @@ public class PlayerInteraction : NetworkBehaviour
             {
                 target = dustbin.NetworkObject;
             }
+            else if (IsNearSomethingToPick())
+            {
+                playerMessages.ShowLocalMessage("Drop the item in your hands first.");
+            }
         }
         else if (nearbyFood != null && !nearbyFood.HasHolder())
         {
@@ -80,6 +85,14 @@ public class PlayerInteraction : NetworkBehaviour
         {
             SendRequest(InteractionType.Interact, target);
         }
+    }
+
+    private bool IsNearSomethingToPick()
+    {
+        if (nearbyFood != null && !nearbyFood.HasHolder()) return true;
+        if (nearbyObject != null && !nearbyObject.HasHolder()) return true;
+
+        return foodSpawner != null || cookingStation != null;
     }
 
     public void SendRequest(InteractionType type, NetworkObject target)
@@ -108,7 +121,7 @@ public class PlayerInteraction : NetworkBehaviour
 
         if (type == InteractionType.Drop)
         {
-            return TryDroppingFood(false);
+            return TryDroppingFood(true);
         }
 
         if (type == InteractionType.Attack)
@@ -242,7 +255,7 @@ public class PlayerInteraction : NetworkBehaviour
     {
         if (isWithForce)
         {
-            return TryDroppingItem(Vector3.up * dropForce);
+            return TryDroppingItem(transform.forward * dropForwardForce + Vector3.up * dropUpForce);
         }
 
         return TryDroppingItem(Vector3.zero);

@@ -13,8 +13,10 @@ public class FloatingMessageUI : MonoBehaviour
     [SerializeField] private float floatSpeed = 25f;
     [SerializeField] private float maxTextWidth = 420f;
     [SerializeField] private Vector2 backgroundPadding = new Vector2(18f, 8f);
+    [SerializeField] private float screenMargin = 12f;
 
     private RectTransform messageRect;
+    private Vector3[] corners = new Vector3[4];
     private Vector2 startPosition;
     private Coroutine messageCoroutine;
 
@@ -66,6 +68,30 @@ public class FloatingMessageUI : MonoBehaviour
         canvasGroup.alpha = 0f;
     }
 
+    private Vector2 GetScreenEdgeShift()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null || messageRect.rect.width <= 0f) return Vector2.zero;
+
+        messageRect.GetWorldCorners(corners);
+        float leftEdge = mainCamera.WorldToScreenPoint(corners[0]).x;
+        float rightEdge = mainCamera.WorldToScreenPoint(corners[2]).x;
+        float pixelsPerUnit = (rightEdge - leftEdge) / messageRect.rect.width;
+        if (pixelsPerUnit <= 0f) return Vector2.zero;
+
+        float shiftInPixels = 0f;
+        if (leftEdge < screenMargin)
+        {
+            shiftInPixels = screenMargin - leftEdge;
+        }
+        else if (rightEdge > Screen.width - screenMargin)
+        {
+            shiftInPixels = Screen.width - screenMargin - rightEdge;
+        }
+
+        return new Vector2(shiftInPixels / pixelsPerUnit, 0f);
+    }
+
     private IEnumerator PlayMessage(string message)
     {
         if (canvasGroup.alpha > 0f)
@@ -86,6 +112,7 @@ public class FloatingMessageUI : MonoBehaviour
         {
             timer += Time.deltaTime;
             messageRect.anchoredPosition = startPosition + Vector2.up * floatSpeed * timer;
+            messageRect.anchoredPosition += GetScreenEdgeShift();
 
             if (timer < fadeInTime)
             {
