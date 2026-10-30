@@ -11,6 +11,7 @@ public class PlayerEating : NetworkBehaviour
     private PlayerInteraction playerInteraction;
     private PlayerHungerManager playerHungerManager;
     private PlayerMessages playerMessages;
+    private PlayerThrowing playerThrowing;
 
     private void Awake()
     {
@@ -18,11 +19,12 @@ public class PlayerEating : NetworkBehaviour
         playerInteraction = GetComponent<PlayerInteraction>();
         playerHungerManager = GetComponent<PlayerHungerManager>();
         playerMessages = GetComponent<PlayerMessages>();
+        playerThrowing = GetComponent<PlayerThrowing>();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsLocalPlayer || playerThrowing.IsBlockingInput()) return;
 
         if (controls.Player.Eat.WasPressedThisFrame())
         {

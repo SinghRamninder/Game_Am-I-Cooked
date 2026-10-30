@@ -19,7 +19,7 @@ public class HungerHUD : MonoBehaviour
             }
 
             PlayerIdentity identity = player.GetComponent<PlayerIdentity>();
-            playerCards[i].ShowPlayer(i, identity.GetPlayerName(), identity.GetColor(), player.GetHungerPercentage(), player.IsOwner, player.isDead.Value);
+            playerCards[i].ShowPlayer(i, identity.GetPlayerName(), identity.GetColor(), player.GetHungerPercentage(), player.IsLocalPlayer, player.isDead.Value);
         }
 
         UpdatePingText();

@@ -9,28 +9,33 @@ public class PlayerInteraction : NetworkBehaviour
     [SerializeField] private float dropForce = 5f;
 
     private InputSystem_Actions controls;
-    private NetworkVariable<NetworkObjectReference> heldFood = new NetworkVariable<NetworkObjectReference>();
-    private FoodManager foodManager;
+    private NetworkVariable<NetworkObjectReference> heldItemReference = new NetworkVariable<NetworkObjectReference>();
+    private HoldableItem heldItem;
     private FoodManager nearbyFood;
+    private KitchenObject nearbyObject;
     private FoodSpawner foodSpawner;
     private CookingStation cookingStation;
     private PlayerEating playerEating;
+    private PlayerCombat playerCombat;
     private PlayerMessages playerMessages;
     private PlayerMovement playerMovement;
     private PlayerIdentity playerIdentity;
+    private PlayerThrowing playerThrowing;
 
     private void Awake()
     {
         controls = new InputSystem_Actions();
         playerEating = GetComponent<PlayerEating>();
+        playerCombat = GetComponent<PlayerCombat>();
         playerMessages = GetComponent<PlayerMessages>();
         playerMovement = GetComponent<PlayerMovement>();
         playerIdentity = GetComponent<PlayerIdentity>();
+        playerThrowing = GetComponent<PlayerThrowing>();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsLocalPlayer || playerThrowing.IsBlockingInput()) return;
 
         if (controls.Player.Interact.WasPressedThisFrame())
         {
@@ -38,13 +43,13 @@ public class PlayerInteraction : NetworkBehaviour
         }
     }
 
-    private void TryInteracting()
+    public void TryInteracting()
     {
         NetworkObject target = null;
 
-        if (IsHoldingFood())
+        if (IsHoldingItem())
         {
-            if (cookingStation != null)
+            if (IsHoldingFood() && cookingStation != null)
             {
                 target = cookingStation.NetworkObject;
             }
@@ -52,6 +57,10 @@ public class PlayerInteraction : NetworkBehaviour
         else if (nearbyFood != null && !nearbyFood.HasHolder())
         {
             target = nearbyFood.NetworkObject;
+        }
+        else if (nearbyObject != null && !nearbyObject.HasHolder())
+        {
+            target = nearbyObject.NetworkObject;
         }
         else if (foodSpawner != null)
         {
@@ -97,6 +106,11 @@ public class PlayerInteraction : NetworkBehaviour
             return TryDroppingFood(false);
         }
 
+        if (type == InteractionType.Attack)
+        {
+            return playerCombat.TryAttackingOnServer(target);
+        }
+
         if (target == null) return false;
 
         if (!IsInReach(target.transform))
@@ -117,10 +131,10 @@ public class PlayerInteraction : NetworkBehaviour
             return TryUsingCookingStation(station);
         }
 
-        FoodManager food = target.GetComponent<FoodManager>();
-        if (food != null)
+        HoldableItem item = target.GetComponent<HoldableItem>();
+        if (item != null)
         {
-            return TryPickingUpFood(food);
+            return TryPickingUpItem(item);
         }
 
         return false;
@@ -137,7 +151,7 @@ public class PlayerInteraction : NetworkBehaviour
 
     private bool TryTakingFromSpawner(FoodSpawner spawner)
     {
-        if (foodManager != null) return false;
+        if (heldItem != null) return false;
 
         if (spawner.IsContainerEmpty())
         {
@@ -152,87 +166,144 @@ public class PlayerInteraction : NetworkBehaviour
             return false;
         }
 
-        PickupFood(food);
+        PickupItem(food);
         return true;
     }
 
     private bool TryUsingCookingStation(CookingStation station)
     {
-        if (foodManager != null)
+        if (heldItem != null)
         {
-            if (station.TryCookingFood(foodManager, OwnerClientId))
+            FoodManager food = GetFoodInHand();
+            if (food == null) return false;
+
+            if (station.TryCookingFood(food, OwnerClientId))
             {
-                foodManager = null;
-                heldFood.Value = new NetworkObjectReference();
+                heldItem = null;
+                heldItemReference.Value = new NetworkObjectReference();
                 return true;
             }
             return false;
         }
 
-        FoodManager food = station.TryTakingFood(OwnerClientId);
-        if (food == null) return false;
+        FoodManager foodOnStation = station.TryTakingFood(OwnerClientId);
+        if (foodOnStation == null) return false;
 
-        PickupFood(food);
+        PickupItem(foodOnStation);
         return true;
     }
 
-    private bool TryPickingUpFood(FoodManager food)
+    private bool TryPickingUpItem(HoldableItem item)
     {
-        if (foodManager != null) return false;
+        if (heldItem != null) return false;
 
-        if (food.HasHolder())
+        if (item.HasHolder())
         {
-            playerMessages.ShowMessage("Someone already took that food.");
+            playerMessages.ShowMessage("Someone already took that.");
             return false;
         }
 
-        PickupFood(food);
+        PickupItem(item);
         return true;
     }
 
-    private void PickupFood(FoodManager food)
+    private void PickupItem(HoldableItem item)
     {
-        foodManager = food;
-        heldFood.Value = food.NetworkObject;
-        food.SetHolder(NetworkObject);
+        heldItem = item;
+        heldItemReference.Value = item.NetworkObject;
+        item.SetHolder(NetworkObject);
     }
 
     public bool TryDroppingFood(bool isWithForce)
     {
-        if (foodManager == null) return false;
-
-        FoodManager food = foodManager;
-        foodManager = null;
-        heldFood.Value = new NetworkObjectReference();
-        food.SetHolder(null);
-
         if (isWithForce)
         {
-            food.AddImpulse(Vector3.up * dropForce);
+            return TryDroppingItem(Vector3.up * dropForce);
+        }
+
+        return TryDroppingItem(Vector3.zero);
+    }
+
+    public bool TryDroppingItem(Vector3 force)
+    {
+        if (heldItem == null) return false;
+
+        HoldableItem item = heldItem;
+        heldItem = null;
+        heldItemReference.Value = new NetworkObjectReference();
+        item.SetHolder(null);
+
+        if (force != Vector3.zero)
+        {
+            item.AddImpulse(force);
         }
 
         return true;
     }
 
+    public bool TryDroppingFoodWithForce(Vector3 force)
+    {
+        if (GetFoodInHand() == null) return false;
+
+        return TryDroppingItem(force);
+    }
+
     public FoodManager GetFoodInHand()
     {
-        return foodManager;
+        return heldItem as FoodManager;
+    }
+
+    public KitchenObject GetObjectInHand()
+    {
+        return heldItem as KitchenObject;
+    }
+
+    public KitchenObject GetHeldKitchenObject()
+    {
+        NetworkObject itemObject;
+        if (!heldItemReference.Value.TryGet(out itemObject)) return null;
+
+        return itemObject.GetComponent<KitchenObject>();
+    }
+
+    public float GetCarriedObjectMass()
+    {
+        KitchenObject kitchenObject = GetObjectInHand();
+        if (kitchenObject == null) return 0f;
+
+        return kitchenObject.GetMass();
     }
 
     public void RemoveFoodFromHand()
     {
-        if (foodManager == null) return;
+        if (GetFoodInHand() == null) return;
 
-        NetworkObject foodObject = foodManager.NetworkObject;
-        foodManager = null;
-        heldFood.Value = new NetworkObjectReference();
+        NetworkObject foodObject = heldItem.NetworkObject;
+        heldItem = null;
+        heldItemReference.Value = new NetworkObjectReference();
         foodObject.Despawn();
+    }
+
+    public bool IsHoldingItem()
+    {
+        NetworkObject itemObject;
+        return heldItemReference.Value.TryGet(out itemObject);
     }
 
     public bool IsHoldingFood()
     {
-        NetworkObject foodObject;
-        return heldFood.Value.TryGet(out foodObject);
+        NetworkObject itemObject;
+        if (!heldItemReference.Value.TryGet(out itemObject)) return false;
+
+        return itemObject.GetComponent<FoodManager>() != null;
+    }
+
+    public bool IsHoldingObject()
+    {
+        NetworkObject itemObject;
+        if (!heldItemReference.Value.TryGet(out itemObject)) return false;
+
+        return itemObject.GetComponent<KitchenObject>() != null;
     }
 
     public Transform GetHoldPoint()
@@ -252,12 +323,12 @@ public class PlayerInteraction : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer && foodManager != null && foodManager.IsSpawned)
+        if (IsServer && heldItem != null && heldItem.IsSpawned)
         {
-            foodManager.SetHolder(null);
+            heldItem.SetHolder(null);
         }
 
-        foodManager = null;
+        heldItem = null;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -267,6 +338,11 @@ public class PlayerInteraction : NetworkBehaviour
         if (other.CompareTag("Food"))
         {
             nearbyFood = other.GetComponent<FoodManager>();
+        }
+
+        if (other.CompareTag("KitchenObject"))
+        {
+            nearbyObject = other.GetComponent<KitchenObject>();
         }
 
         if (other.CompareTag("FoodSpawner"))
@@ -288,6 +364,11 @@ public class PlayerInteraction : NetworkBehaviour
         if (other.CompareTag("Food") && nearbyFood != null && other.gameObject == nearbyFood.gameObject)
         {
             nearbyFood = null;
+        }
+
+        if (other.CompareTag("KitchenObject") && nearbyObject != null && other.gameObject == nearbyObject.gameObject)
+        {
+            nearbyObject = null;
         }
 
         if (other.CompareTag("FoodSpawner"))

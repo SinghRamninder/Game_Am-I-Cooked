@@ -8,6 +8,7 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private GameObject networkManagerPrefab;
+    [SerializeField] private bool spawnTestPlayer = true;
 
     private void Awake()
     {
@@ -50,6 +51,11 @@ public class PlayerSpawner : MonoBehaviour
             SpawnPlayer(clientId);
         }
 
+        if (spawnTestPlayer)
+        {
+            SpawnTestPlayer(NetworkManager.Singleton.ConnectedClientsIds.Count);
+        }
+
         foreach (FoodSpawner foodSpawner in FindObjectsByType<FoodSpawner>(FindObjectsSortMode.None))
         {
             foodSpawner.StartSpawning();
@@ -76,5 +82,18 @@ public class PlayerSpawner : MonoBehaviour
         PlayerIdentity identity = player.GetComponent<PlayerIdentity>();
         identity.playerIndex.Value = playerIndex;
         identity.playerName.Value = playerName;
+    }
+
+    private void SpawnTestPlayer(int playerIndex)
+    {
+        Transform spawnPoint = spawnPoints[playerIndex % spawnPoints.Length];
+        GameObject player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+        player.AddComponent<TestPlayerInput>();
+
+        player.GetComponent<NetworkObject>().Spawn(true);
+
+        PlayerIdentity identity = player.GetComponent<PlayerIdentity>();
+        identity.playerIndex.Value = playerIndex;
+        identity.playerName.Value = "Test (IJKL)";
     }
 }

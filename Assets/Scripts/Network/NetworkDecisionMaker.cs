@@ -6,7 +6,8 @@ public enum InteractionType
 {
     Interact,
     Eat,
-    Drop
+    Drop,
+    Attack
 }
 
 public class InteractionRequest
@@ -87,11 +88,14 @@ public class NetworkDecisionMaker : MonoBehaviour
             PlayerHungerManager hungerManager = request.player.GetComponent<PlayerHungerManager>();
             if (hungerManager.isDead.Value) continue;
 
+            PlayerCombat combat = request.player.GetComponent<PlayerCombat>();
+            if (combat.IsStunned()) continue;
+
             NetworkObject target;
             request.target.TryGet(out target);
 
             int claimedIndex = -1;
-            if (target != null)
+            if (target != null && request.type == InteractionType.Interact)
             {
                 claimedIndex = claimedTargets.IndexOf(target);
             }
@@ -106,7 +110,7 @@ public class NetworkDecisionMaker : MonoBehaviour
 
             bool success = request.player.ExecuteRequest(request.type, target);
 
-            if (success && target != null)
+            if (success && target != null && request.type == InteractionType.Interact)
             {
                 claimedTargets.Add(target);
                 claimedByPlayers.Add(request.player);

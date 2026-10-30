@@ -8,10 +8,17 @@ public class PlayerHungerManager : NetworkBehaviour
 
     [SerializeField] private float maxHunger = 100f;
     [SerializeField] private float hungerIncreaseRate = 2f;
+    [SerializeField] private float hungerPerCarriedMass = 0.15f;
 
     public NetworkVariable<bool> isDead = new NetworkVariable<bool>(false);
 
     private NetworkVariable<float> hungerLevel = new NetworkVariable<float>(0f);
+    private PlayerInteraction playerInteraction;
+
+    private void Awake()
+    {
+        playerInteraction = GetComponent<PlayerInteraction>();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -34,7 +41,8 @@ public class PlayerHungerManager : NetworkBehaviour
     {
         if (!IsServer || isDead.Value) return;
 
-        hungerLevel.Value += hungerIncreaseRate * Time.deltaTime;
+        float carriedMass = playerInteraction.GetCarriedObjectMass();
+        hungerLevel.Value += (hungerIncreaseRate + carriedMass * hungerPerCarriedMass) * Time.deltaTime;
 
         if (hungerLevel.Value >= maxHunger)
         {
@@ -110,6 +118,12 @@ public class PlayerHungerManager : NetworkBehaviour
         if (playerMovement != null)
         {
             playerMovement.enabled = false;
+        }
+
+        PlayerCombat playerCombat = GetComponent<PlayerCombat>();
+        if (playerCombat != null)
+        {
+            playerCombat.enabled = false;
         }
     }
 }
